@@ -1,6 +1,9 @@
 package com.jaksic.nikola.expandablerecycler;
 
+import android.os.Handler;
+import android.support.v7.widget.LinearSmoothScroller;
 import android.support.v7.widget.RecyclerView;
+import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +14,8 @@ import java.util.List;
 public class RecAdapter extends RecyclerView.Adapter<RecAdapter.RecViewHolder> {
 
     private List<Movie> list;
+    private RecyclerView mRecyclerView;
+    private RecyclerView.SmoothScroller mSmoothScroller;
 
     public RecAdapter(List<Movie> list) {
         this.list = list;
@@ -34,12 +39,36 @@ public class RecAdapter extends RecyclerView.Adapter<RecAdapter.RecViewHolder> {
             boolean expanded = movie.isExpanded();
             movie.setExpanded(!expanded);
             notifyItemChanged(position);
+
+            if (movie.isExpanded()) {
+                mSmoothScroller.setTargetPosition(position);
+                new Handler().postDelayed(() ->
+                        mRecyclerView.getLayoutManager().startSmoothScroll(mSmoothScroller), 100);
+            }
         });
     }
 
     @Override
     public int getItemCount() {
         return list == null ? 0 : list.size();
+    }
+
+    @Override
+    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
+        super.onAttachedToRecyclerView(recyclerView);
+        mRecyclerView = recyclerView;
+
+        mSmoothScroller = new LinearSmoothScroller(recyclerView.getContext()) {
+            @Override
+            protected int getVerticalSnapPreference() {
+                return LinearSmoothScroller.SNAP_TO_ANY;
+            }
+
+            @Override
+            protected float calculateSpeedPerPixel(DisplayMetrics displayMetrics) {
+                return 150f / displayMetrics.densityDpi;
+            }
+        };
     }
 
     public class RecViewHolder extends RecyclerView.ViewHolder {
