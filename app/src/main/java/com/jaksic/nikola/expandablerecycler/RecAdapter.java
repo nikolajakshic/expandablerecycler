@@ -41,9 +41,10 @@ public class RecAdapter extends RecyclerView.Adapter<RecAdapter.RecViewHolder> {
             notifyItemChanged(position);
 
             if (movie.isExpanded()) {
-                mSmoothScroller.setTargetPosition(position);
-                new Handler().postDelayed(() ->
-                        mRecyclerView.getLayoutManager().startSmoothScroll(mSmoothScroller), 100);
+                new Handler().postDelayed(() -> {
+                    mSmoothScroller.setTargetPosition(position);
+                    mRecyclerView.getLayoutManager().startSmoothScroll(mSmoothScroller);
+                }, 100);
             }
         });
     }
